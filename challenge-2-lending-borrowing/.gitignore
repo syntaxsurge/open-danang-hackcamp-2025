@@ -1,0 +1,26 @@
+node_modules
+.env
+
+# Hardhat files
+/cache
+/artifacts
+
+# TypeChain files
+/typechain
+
+# solidity-coverage files
+/coverage
+/coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+ignition/deployments/chain-31337
+.qodo/
+.DS_Store
+
+# Ignition deployments for westend 
+ignition/deployments/chain-420420421
+
+
+cache-pvm
+artifacts-pvm
+typechain-types
