@@ -53,7 +53,7 @@ Build the UI with features based on the requirements:
 - [ ] Finish `TODO` smart contract logic
 - [ ] Complete UI 
 - [ ] Run tests 
-- [ ] Deploy to Westend Asset Hub 
+- [ ] Deploy to Paseo Asset Hub 
 
 
 

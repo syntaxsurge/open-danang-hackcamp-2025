@@ -94,14 +94,15 @@ Link : https://blockscout-passet-hub.parity-testnet.parity.io/
 - [Hardhat-Polkadot Plugin](https://github.com/paritytech/hardhat-polkadot/tree/main/packages/hardhat-polkadot)
 - [Remix for Polkadot](https://remix.polkadot.io/)
 - [Old Smart Contract Docs](https://contracts.polkadot.io/)
-
+- [OpenGuild Learn](https://learn.openguild.wtf/)
 
 ### Support Channels
+- [Discord OpenGuild](https://github.com/openguild-labs)
 - [Discord Polkadot](https://discord.gg/polkadot)
 - [Stack Exchange](https://substrate.meta.stackexchange.com/)
 - [Telegram](https://t.me/substratedevs)
 - [Reddit](https://www.reddit.com/r/Polkadot/)
-- [Discord OpenGuild](https://github.com/openguild-labs)
+
 
 
 
