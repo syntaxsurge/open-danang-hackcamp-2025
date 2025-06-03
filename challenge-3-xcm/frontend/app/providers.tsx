@@ -32,8 +32,8 @@ export const westendAssetHub = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://westend-asset-hub-eth-rpc.polkadot.io'],
-      webSocket: ['wss://westend-asset-hub-eth-rpc.polkadot.io'],
+      http: ['https://testnet-passet-hub-eth-rpc.polkadot.io/'],
+      webSocket: ['wss://testnet-passet-hub.polkadot.io'],
     },
   },
   blockExplorers: {

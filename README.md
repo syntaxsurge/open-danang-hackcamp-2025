@@ -81,8 +81,8 @@ Link : https://blockscout-passet-hub.parity-testnet.parity.io/
 ### RPC
 
 ETH - EVM-compatible RPC: `https://testnet-passet-hub-eth-rpc.polkadot.io/`
+ChainID: `0x190f1b45`
 
-Paseo Asset Hub RPC:  `wss://testnet-passet-hub.polkadot.io`
 
 
 ### Resources
