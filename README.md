@@ -69,6 +69,22 @@ Total Bifrost Parner prize pool: **300$-1000$** (dedicated to Bifrost's Challeng
 </div>
 
 ## 👉 Resource for Development and Support Channels
+
+### Paseo Contract Faucet 
+
+Link : https://faucet.polkadot.io/?parachain=1111
+
+### Explorer 
+
+Link : https://blockscout-passet-hub.parity-testnet.parity.io/
+
+### RPC
+
+ETH - EVM-compatible RPC: `https://testnet-passet-hub-eth-rpc.polkadot.io/`
+
+Paseo Asset Hub RPC:  `wss://testnet-passet-hub.polkadot.io`
+
+
 ### Resources
 
 - [Polkadot Smart Contracts Documentation](https://papermoonio.github.io/polkadot-mkdocs/develop/smart-contracts/)
@@ -86,6 +102,9 @@ Total Bifrost Parner prize pool: **300$-1000$** (dedicated to Bifrost's Challeng
 - [Telegram](https://t.me/substratedevs)
 - [Reddit](https://www.reddit.com/r/Polkadot/)
 - [Discord OpenGuild](https://github.com/openguild-labs)
+
+
+
 
 
 ## 👉 Contribute to OpenGuild Community
