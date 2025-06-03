@@ -42,21 +42,4 @@ const config = {
 };
 
 
-// if (needsResolc) {
-//   require("hardhat-resolc");
-//   require("hardhat-revive-node");
-//   // Standard JSON output
-//   config.resolc = {
-//     compilerSource: 'binary',
-//     settings: {
-//       optimizer: {
-//         enabled: true,
-//       },
-//       evmVersion: 'istanbul',
-//       compilerPath: '~/.cargo/bin/resolc-0.1.0-dev.14',
-//       standardJson: true,
-//     },
-//   };
-// }
-
 module.exports = config;

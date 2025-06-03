@@ -1,56 +1,34 @@
-# hardhat-revive-uniswap-v2-core
 
-## Prerequisites
+## Challenge details
+A decentralized exchange (DEX) implementation based on Uniswap V2's architecture, adapted for Polkadot Asset Hub, enabling automated market making and token swaps with liquidity pools.
 
-Ensure that you have substrate-node, eth-rpc and local resolc binaries on your local machine. If not, follow these instructions to install them:
+## Functional Specifications 
 
-```bash
-git clone https://github.com/paritytech/polkadot-sdk
-cd polkadot-sdk
-cargo build --bin substrate-node --release
-cargo build -p pallet-revive-eth-rpc --release
-```
++ Swap interface 
++ Liquidity Management
 
-Once the build is complete, you will find both binaries in the `./target/release` directory.
 
-For resolc's installation, please refer to the [resolc's README](https://github.com/paritytech/revive/blob/main/README.md).
-Start the network by running:
+## Implementation Smart Contract Requirements
 
-```bash
-./target/release/substrate-node --dev
-./target/release/eth-rpc --dev
-```
+Link contract: [Contract](./contracts)
 
-## How to Initialize
+- [ ] **Deploy a factory, pair, and ERC20 token contracts on Paseo Asset Hub**
 
-```bash
-git clone https://github.com/sekisamu/hardhat-revive-uniswap-v2-core
-cd hardhat-revive-uniswap-v2-core
-pnpm install
-```
 
-Open the `hardhat.config.js` file and update the following fields under networks -> hardhat:
 
-```
-nodeBinaryPath: Set this to the local path of your substrate-node binary.
+## Implementation UI Requirements 
 
-adapterBinaryPath: Set this to the local path of your eth-rpc binary.
+Link UI sample: [DOT UI](./frontend)
 
-```
+Build the UI with features based on the requirements:
 
-And add the following fields under resolc -> settings:
+- [ ] **Connect the frontend to Asset Hub using MetaMask and Web3 Tools ( Viem, Ethersjs)**
+- [ ] **Build frontend with swap interface and liquidity pool management**
 
-```
-compilerPath: Set this to the local path of your resolc binary.
-```
-Remember to use `0.1.0-dev.14` or later for the resolc version, and ensure that both paths correctly point to the respective executable files.
 
-How to Test
+## Submission Requirements 
+- [ ] Deploy a factory, pair, and ERC20 token contracts on Paseo Asset Hub
+- [ ] Complete UI 
 
-```bash
-# For PolkaVM chains
-npx hardhat test --network polkavm
 
-# For EVM chains
-npx hardhat test --network sepolia
-```
+
