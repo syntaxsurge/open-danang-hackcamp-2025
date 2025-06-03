@@ -79,7 +79,7 @@ import CopyButton from "@/components/copy-button";
 
 // Library imports
 import { getSigpassWallet } from "@/lib/sigpass";
-import { westendAssetHub } from "@/app/providers";
+import { paseoAssetHub } from "@/app/providers";
 import { useAtomValue } from 'jotai'
 import { addressAtom } from '@/components/sigpasskit'
 import { Skeleton } from "./ui/skeleton";
@@ -191,7 +191,7 @@ export default function WriteContract() {
         abi: erc20AbiExtend,
         functionName: 'transfer',
         args: [values.address as Address, parseUnits(values.amount, decimals as number)],
-        chainId: westendAssetHub.id,
+        chainId: paseoAssetHub.id,
       });
     } else {
       // Fallback to connected wallet
@@ -200,7 +200,7 @@ export default function WriteContract() {
         abi: erc20AbiExtend,
         functionName: 'transfer',
         args: [values.address as Address, parseUnits(values.amount, decimals as number)],
-        chainId: westendAssetHub.id,
+        chainId: paseoAssetHub.id,
       });
     }
   }

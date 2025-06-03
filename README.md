@@ -80,8 +80,9 @@ Link : https://blockscout-passet-hub.parity-testnet.parity.io/
 
 ### RPC
 
-ETH - EVM-compatible RPC: `https://testnet-passet-hub-eth-rpc.polkadot.io/`
-ChainID: `0x190f1b45`
++ ETH - EVM-compatible RPC: `https://testnet-passet-hub-eth-rpc.polkadot.io/`
+
++ ChainID: `0x190f1b45`
 
 
 
@@ -91,7 +92,6 @@ ChainID: `0x190f1b45`
 - [Polkadot Smart Contracts Tutorial](https://papermoonio.github.io/polkadot-mkdocs/tutorials/smart-contracts/)
 - [Polkadot Smart Contract Basics](https://papermoonio.github.io/polkadot-mkdocs/polkadot-protocol/smart-contract-basics/)
 - [Hardhat-Polkadot Plugin](https://github.com/paritytech/hardhat-polkadot/tree/main/packages/hardhat-polkadot)
-- [SubScan Block Explorer for Asset Hub Westend](https://assethub-westend.subscan.io/)
 - [Remix for Polkadot](https://remix.polkadot.io/)
 - [Old Smart Contract Docs](https://contracts.polkadot.io/)
 

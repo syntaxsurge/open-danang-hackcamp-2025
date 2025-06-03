@@ -36,7 +36,7 @@ const config: HardhatUserConfig = {
             polkavm: true,
             url: `http://127.0.0.1:8545`,
         },
-        westendAssetHub: {
+        paseoAssetHub: {
             polkavm: true,
             url: 'https://testnet-passet-hub-eth-rpc.polkadot.io/',
             accounts: [process.env.PRIVATE_KEY as string, process.env.PRIVATE_KEY_2 as string],

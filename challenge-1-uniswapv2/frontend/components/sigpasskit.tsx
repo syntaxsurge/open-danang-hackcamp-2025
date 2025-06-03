@@ -32,7 +32,7 @@ import {
 import Image from 'next/image';
 import { useAtom } from 'jotai';
 import { atomWithStorage, RESET } from 'jotai/utils';
-import { westendAssetHub } from '@/app/providers';
+import { paseoAssetHub } from '@/app/providers';
 
 
 // Set the string key and the initial value
@@ -40,9 +40,9 @@ export const addressAtom = atomWithStorage<Address | undefined>('SIGPASS_ADDRESS
 
 // create a local config for the wallet
 const localConfig = createConfig({
-  chains: [westendAssetHub],
+  chains: [paseoAssetHub],
   transports: {
-    [westendAssetHub.id]: http(),
+    [paseoAssetHub.id]: http(),
   },
   ssr: true,
 });
@@ -58,7 +58,7 @@ export default function SigpassKit() {
   const config = useConfig();
   const { data: balance } = useBalance({
     address: address,
-    chainId: westendAssetHub.id,
+    chainId: paseoAssetHub.id,
     config: address ? localConfig : config,
   });
 

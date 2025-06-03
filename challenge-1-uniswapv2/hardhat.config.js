@@ -33,7 +33,7 @@ const config = {
       accounts: [process.env.LOCAL_PRIV_KEY, process.env.AH_PRIV_KEY],
     },
 
-    ah: { 
+    paseoAssetHub: { 
       polkavm: true,
       url: "https://testnet-passet-hub-eth-rpc.polkadot.io/",
       accounts: [process.env.AH_PRIV_KEY],

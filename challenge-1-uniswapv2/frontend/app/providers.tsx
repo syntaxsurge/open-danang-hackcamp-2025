@@ -22,13 +22,13 @@ import { WagmiProvider, http, createConfig } from 'wagmi';
 import { Provider as JotaiProvider } from 'jotai';
 // import according to docs
 
-export const westendAssetHub = defineChain({
-  id: 420420421,
-  name: "Westend AssetHub",
+export const paseoAssetHub = defineChain({
+  id: 420417733,
+  name: "Paseo AssetHub",
   nativeCurrency: {
     decimals: 18,
-    name: 'Westend',
-    symbol: 'WND',
+    name:'Paseo',
+    symbol: 'PAS',
   },
   rpcUrls: {
     default: {
@@ -37,7 +37,7 @@ export const westendAssetHub = defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://assethub-westend.subscan.io' },
+    default: { name: 'Explorer', url: 'https://blockscout-passet-hub.parity-testnet.parity.io/' },
   },
   contracts: {
     multicall3: {
@@ -49,13 +49,13 @@ export const westendAssetHub = defineChain({
 
 export const localConfig = createConfig({
   chains: [
-    westendAssetHub,
+    paseoAssetHub,
     manta,
     moonbaseAlpha,
     moonbeam,
   ],
   transports: {
-    [westendAssetHub.id]: http(),
+    [paseoAssetHub.id]: http(),
     [manta.id]: http(),
     [moonbaseAlpha.id]: http(),
     [moonbeam.id]: http(),
@@ -77,13 +77,13 @@ const config = getDefaultConfig({
     },
   ],
   chains: [
-    westendAssetHub,
+    paseoAssetHub,
     moonbeam,
     moonbaseAlpha,
     manta
   ],
   transports: {
-    [westendAssetHub.id]: http(),
+    [paseoAssetHub.id]: http(),
     [moonbeam.id]: http(),
     [moonbaseAlpha.id]: http(),
     [manta.id]: http(),
