@@ -48,6 +48,15 @@ Build the UI with features based on the requirements:
 - [ ] **Loan and Repay**
 - [ ] **Show loan details**
 
+## Network Info
+
+| Property | Value |
+|----------|--------|
+| Network Name | Paseo Asset Hub |
+| RPC URL | https://testnet-passet-hub-eth-rpc.polkadot.io/ |
+| Chain ID | 0x190f1b45 |
+| Explorer | https://blockscout-passet-hub.parity-testnet.parity.io/ |
+| Faucet | https://faucet.polkadot.io/?parachain=1111 |
 
 ## Submission Requirements 
 - [ ] Finish `TODO` smart contract logic
