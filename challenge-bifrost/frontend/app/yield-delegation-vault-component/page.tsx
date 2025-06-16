@@ -64,9 +64,7 @@ export default function Page() {
       />
       <DepositToVaultComponent
         tokenBalances={
-          tokenBalances?.map((balance) => balance.result) as
-            | [bigint | undefined, bigint | undefined, bigint | undefined]
-            | undefined
+          tokenBalances?.map((balance) => balance.result ?? BigInt(0)) ?? []
         }
       />
       <VaultDepositsManagementComponent />
