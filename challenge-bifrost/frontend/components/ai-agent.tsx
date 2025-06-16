@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { MessageSquare, Send, X } from "lucide-react";
-
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useAiChat } from "@/hooks/use-ai-chat";
 import ChatMessage from "@/components/chat/chat-message";
 import ChatSuggestions from "@/components/chat/chat-suggestions";
 import ChatToolbar from "@/components/chat/chat-toolbar";
-
 import { Button } from "@/components/ui/button";
 import { AiAgentContext } from "@/hooks/use-ai-agent-context";
 import {
@@ -34,19 +32,28 @@ interface AiAgentProps {
 export default function AiAgent({ initialPrompt }: AiAgentProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [open, setOpen] = useState(false);
+  const [showHint, setShowHint] = useState(true);
 
   const { messages, input, setInput, loading, send, reset } = useAiChat();
 
-  // helper to open with optional seed prompt
+  // open assistant with optional prompt
   const openWithPrompt = (prompt?: string) => {
     if (prompt) setInput(prompt);
     setOpen(true);
+    setShowHint(false);
   };
 
-  // auto-seed initialPrompt when dialog opens
+  // seed initial prompt after dialog appears
   useEffect(() => {
     if (open && initialPrompt) setInput(initialPrompt);
   }, [open, initialPrompt, setInput]);
+
+  // auto-dismiss hint after 8 s
+  useEffect(() => {
+    if (!showHint) return;
+    const t = setTimeout(() => setShowHint(false), 8000);
+    return () => clearTimeout(t);
+  }, [showHint]);
 
   /* ------------------------------- chat window ------------------------------ */
   const chatWindow = (
@@ -92,8 +99,19 @@ export default function AiAgent({ initialPrompt }: AiAgentProps) {
   return (
     <AiAgentContext.Provider value={{ open: openWithPrompt }}>
       <>
+        {showHint && (
+          <div className="fixed bottom-24 right-6 z-50">
+            <div className="animate-bounce rounded-lg border border-border bg-white/90 px-4 py-2 text-sm font-medium shadow-lg dark:bg-black/80">
+              👋 Chat with AI
+            </div>
+          </div>
+        )}
+
         <Button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true);
+            setShowHint(false);
+          }}
           size="icon"
           className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg transition-transform hover:scale-105"
         >
