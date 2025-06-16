@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/drawer";
 
 export default function VaultDepositsManagementComponent() {
-  const isDesktop = useMediaQuery("(min-width: 768px)"); // still used in dialog/drawer choice
   const { address } = useAccount();
 
   const {
