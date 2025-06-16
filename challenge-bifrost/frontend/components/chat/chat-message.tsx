@@ -21,7 +21,9 @@ export default function ChatMessage({ message }: Props) {
   if (content === "ORDER_STATUS") {
     return (
       <OrderStatusCard
-        status={message.state as any}
+        status={
+          message.state as "pending" | "processing" | "completed" | "failed"
+        }
         txHash={message.txHash}
         amount={message.amount}
         token={message.token}
@@ -79,7 +81,9 @@ export default function ChatMessage({ message }: Props) {
 
   return (
     <div
-      className={`flex ${role === "user" ? "justify-end" : "justify-start"} mb-4`}
+      className={`flex ${
+        role === "user" ? "justify-end" : "justify-start"
+      } mb-4`}
     >
       <div
         className={`flex max-w-[80%] ${

@@ -1,56 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  type BaseError,
-  useWaitForTransactionReceipt,
-  useReadContract,
-  useWriteContract,
-  useCapabilities,
-  useSendCalls,
-  useAccount,
-  useChainId,
-  useConfig,
-  useWaitForCallsStatus,
-  useCallsStatus,
-  useReadContracts,
-} from "wagmi";
+import { useReadContracts, useReadContract } from "wagmi";
+import { useAccount } from "wagmi";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Token } from "@/types/token";
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import {
+  RefreshCcw,
+  ArrowLeftRight,
+  OctagonAlert,
+  EqualApproximately,
+  BanknoteArrowDown,
+} from "lucide-react";
 import {
   TOKEN_LIST,
   L2SLPX_CONTRACT_ADDRESS,
   YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
 } from "@/lib/constants";
-import { Button } from "@/components/ui/button";
-import { parseEther, formatEther, Address, maxUint256, erc20Abi } from "viem";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import {
-  roundLongDecimals,
-  formatNumberStringInput,
-  formatNumberStringWithThousandSeparators,
-} from "@/lib/utils";
-import {
-  Loader2,
-  RefreshCcw,
-  ArrowLeftRight,
-  BanknoteArrowDown,
-  OctagonAlert,
-  EqualApproximately
-} from "lucide-react";
 import { l2SlpxAbi, yieldDelegationVaultAbi } from "@/lib/abis";
-import { TransactionStatus } from "@/components/transaction-status";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { formatEther } from "viem";
+import { roundLongDecimals } from "@/lib/utils";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@radix-ui/react-dialog";
+import { DialogHeader, DialogFooter } from "./ui/dialog";
 import {
   Drawer,
   DrawerClose,
@@ -62,19 +33,9 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-const tokens: Token[] = TOKEN_LIST.filter(
-  (token) => token.symbol === "vDOT" || token.symbol === "vETH"
-);
-
 export default function VaultDepositsManagementComponent() {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-  const config = useConfig();
-  const chainId = useChainId();
+  const isDesktop = useMediaQuery("(min-width: 768px)"); // still used in dialog/drawer choice
   const { address } = useAccount();
-  const { data: availableCapabilities } = useCapabilities({
-    account: address,
-    chainId: chainId,
-  });
 
   const {
     data: dataBatch,
@@ -89,7 +50,7 @@ export default function VaultDepositsManagementComponent() {
         address: YIELD_DELEGATION_VAULT_CONTRACT_ADDRESS,
         abi: yieldDelegationVaultAbi,
         functionName: "getDepositorRecord",
-        args: [address as Address],
+        args: [address as `0x${string}`],
       },
       // vETH/ETH conversion info
       {
@@ -105,131 +66,11 @@ export default function VaultDepositsManagementComponent() {
         functionName: "getTokenConversionInfo",
         args: [
           TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-            .address as Address,
+            .address as `0x${string}`,
         ],
       },
     ],
   });
-
-  // Batching
-  // const {
-  //   data: batchCallsId,
-  //   isPending: isBatching,
-  //   error: batchError,
-  //   sendCalls,
-  // } = useSendCalls();
-
-  // const form = useForm({
-  //   defaultValues: {
-  //     amount: "",
-  //   },
-  //   onSubmit: async ({ value }) => {
-  //     if (selectedToken?.symbol === "vETH") {
-  //       writeContract({
-  //         address: L2SLPX_CONTRACT_ADDRESS,
-  //         abi: l2SlpxAbi,
-  //         functionName: "createOrder",
-  //         value: parseEther(value.amount),
-  //         args: [
-  //           "0x0000000000000000000000000000000000000000",
-  //           parseEther(value.amount),
-  //           0,
-  //           "bifrost",
-  //         ],
-  //       });
-  //     }
-
-  //     if (selectedToken?.symbol === "vDOT") {
-  //       if (availableCapabilities?.atomic?.status === "supported") {
-  //         sendCalls({
-  //           calls: [
-  //             {
-  //               to: TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-  //                 .address as Address,
-  //               abi: erc20Abi,
-  //               functionName: "approve",
-  //               args: [L2SLPX_CONTRACT_ADDRESS, parseEther(value.amount)],
-  //             },
-  //             {
-  //               to: L2SLPX_CONTRACT_ADDRESS,
-  //               abi: l2SlpxAbi,
-  //               functionName: "createOrder",
-  //               args: [
-  //                 TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-  //                   .address as Address,
-  //                 parseEther(value.amount),
-  //                 0,
-  //                 "bifrost",
-  //               ],
-  //             },
-  //           ],
-  //         });
-  //       }
-
-  //       if (availableCapabilities?.atomic?.status !== "supported") {
-  //         if (tokenAllowance === BigInt(0)) {
-  //           writeContract({
-  //             address: TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-  //               .address as Address,
-  //             abi: erc20Abi,
-  //             functionName: "approve",
-  //             args: [L2SLPX_CONTRACT_ADDRESS, maxUint256],
-  //           });
-  //         }
-
-  //         if (tokenAllowance && tokenAllowance >= parseEther(value.amount)) {
-  //           writeContract({
-  //             address: L2SLPX_CONTRACT_ADDRESS,
-  //             abi: l2SlpxAbi,
-  //             functionName: "createOrder",
-  //             args: [
-  //               TOKEN_LIST.filter((token) => token.symbol === "DOT")[0]
-  //                 .address as Address,
-  //               parseEther(value.amount),
-  //               0,
-  //               "bifrost",
-  //             ],
-  //           });
-  //         }
-  //       }
-  //     }
-  //   },
-  // });
-
-  // const { isLoading: isConfirming, isSuccess: isConfirmed } =
-  //   useWaitForTransactionReceipt({
-  //     hash,
-  //   });
-
-  // const { isLoading: isSendingCalls } = useWaitForCallsStatus({
-  //   id: batchCallsId?.id,
-  // });
-
-  // const {
-  //   data: batchCallsStatus,
-  //   isLoading: isBatchCallsLoading,
-  //   isSuccess: isBatchCallsSuccess,
-  // } = useCallsStatus(
-  //   batchCallsId
-  //     ? {
-  //         id: batchCallsId.id,
-  //       }
-  //     : {
-  //         id: "",
-  //       }
-  // );
-
-  // useEffect(() => {
-  //   if (isConfirming || isSendingCalls) {
-  //     setOpen(true);
-  //   }
-  // }, [isConfirming, isSendingCalls]);
-
-  // useEffect(() => {
-  //   if (isConfirmed) {
-  //     refetchTokenAllowance();
-  //   }
-  // }, [isConfirmed, refetchTokenAllowance]);
 
   return (
     <div className="flex flex-col gap-4 w-full p-4">
@@ -301,20 +142,19 @@ export default function VaultDepositsManagementComponent() {
             ))
           ) : (
             <>
-              {dataBatch?.[0]?.result?.depositIds.map((depositId) => {
-                return (
-                  <VaultDepositInfo
-                    key={depositId}
-                    depositId={depositId}
-                    currentTokenConversionRate={
-                      {
-                        vethTokenConversionRate: dataBatch?.[1]?.result?.tokenConversionRate ?? BigInt(0),
-                        dotTokenConversionRate: dataBatch?.[2]?.result?.tokenConversionRate ?? BigInt(0),
-                      }
-                    }
-                  />
-                );
-              })}
+              {dataBatch?.[0]?.result?.depositIds.map((depositId) => (
+                <VaultDepositInfo
+                  key={depositId}
+                  depositId={depositId}
+                  currentTokenConversionRate={{
+                    vethTokenConversionRate:
+                      dataBatch?.[1]?.result?.tokenConversionRate ??
+                      BigInt(0),
+                    dotTokenConversionRate:
+                      dataBatch?.[2]?.result?.tokenConversionRate ?? BigInt(0),
+                  }}
+                />
+              ))}
             </>
           )}
         </div>
@@ -348,7 +188,7 @@ function VaultDepositInfo({
     args: [depositId],
   });
 
-  function formatTokenAddress(tokenAddress: Address) {
+  function formatTokenAddress(tokenAddress: `0x${string}`) {
     if (tokenAddress === "0x8bFA30329F2A7A7b72fa4A76FdcE8aC92284bb94") {
       return "vDOT";
     }
@@ -368,7 +208,7 @@ function VaultDepositInfo({
     <div className="flex flex-col gap-2 border border-muted-accent rounded-md p-4">
       <div className="flex flex-row items-center justify-between">
         <h2 className="text-md font-bold text-center bg-primary text-secondary rounded-md px-2 py-1 w-fit">
-          {depositId}
+          {depositId.toString()}
         </h2>
         <div className="flex flex-row items-center gap-2">
           <Button
@@ -536,12 +376,14 @@ function VaultDepositInfo({
           <>
             <div className="flex flex-row items-end gap-2">
               <p className="text-3xl font-bold">
-                {formatEther(vaultDepositRecord?.amountDeposited ?? BigInt(0))}
+                {formatEther(
+                  vaultDepositRecord?.amountDeposited ?? BigInt(0)
+                )}
               </p>
               <p className="text-xl font-medium">
                 {formatTokenAddress(
-                  vaultDepositRecord?.tokenAddress ??
-                    "0x0000000000000000000000000000000000000000"
+                  (vaultDepositRecord?.tokenAddress ??
+                    "0x0000000000000000000000000000000000000000") as `0x${string}`
                 )}
               </p>
             </div>
@@ -553,21 +395,25 @@ function VaultDepositInfo({
               </p>
               <ArrowLeftRight className="w-4 h-4 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">
-                {vaultDepositRecord?.amountDeposited && vaultDepositRecord?.depositConversionRate && (
-                  roundLongDecimals(formatEther(
-                      (vaultDepositRecord.amountDeposited * BigInt(10 ** 18) / vaultDepositRecord.depositConversionRate)
-                    ),
-                    8
-                  )
-                )}
+                {vaultDepositRecord?.amountDeposited &&
+                vaultDepositRecord?.depositConversionRate
+                  ? roundLongDecimals(
+                      formatEther(
+                        (vaultDepositRecord.amountDeposited *
+                          BigInt(10 ** 18)) /
+                          vaultDepositRecord.depositConversionRate
+                      ),
+                      8
+                    )
+                  : "0"}
               </p>
               <p className="text-lg text-muted-foreground">
-                {
-                  formatTokenAddress(
-                    vaultDepositRecord?.tokenAddress ??
-                      "0x0000000000000000000000000000000000000000"
-                  ) === "vETH" ? "ETH" : "DOT"
-                }
+                {formatTokenAddress(
+                  (vaultDepositRecord?.tokenAddress ??
+                    "0x0000000000000000000000000000000000000000") as `0x${string}`
+                ) === "vETH"
+                  ? "ETH"
+                  : "DOT"}
               </p>
             </div>
           </>

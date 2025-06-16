@@ -33,6 +33,14 @@ const INTENTS = [
   "portfolio",
 ] as const;
 
+export type BifrostAgentResponse = {
+  type: (typeof INTENTS)[number] | "general_answer";
+  token_symbol?: string;
+  amount?: string;
+  order_id?: string;
+  message?: string;
+};
+
 const AGENT_SYSTEM_PROMPT = `You are Bifrost AI's intent parser.
 Translate each user request into **exactly one** JSON object, with the following schema:
 
@@ -45,15 +53,15 @@ Translate each user request into **exactly one** JSON object, with the following
 }
 
 Rules:
-1. Choose the \`type\` that best matches the request; if none fits, use \`general_answer\`.
+1. Choose the \\`type\\` that best matches the request; if none fits, use \\`general_answer\\`.
 2. token_symbol is **uppercase** with no whitespace.
-3. Omit keys that are not relevant to the chosen type (except \`type\`).
+3. Omit keys that are not relevant to the chosen type (except \\`type\\`).
 4. Return **only** the raw JSON with no markdown, no extra keys, no commentary.
 `;
 
 async function chatCompletion(
   messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
-) {
+): Promise<string> {
   const completion = await getClient().chat.completions.create({
     model: "gpt-4o",
     messages,
@@ -66,15 +74,17 @@ async function chatCompletion(
 /*                             Server-side helpers                            */
 /* -------------------------------------------------------------------------- */
 
-async function bifrostAgentInternal(userQuery: string): Promise<any> {
-  const messages = [
+async function bifrostAgentInternal(
+  userQuery: string,
+): Promise<BifrostAgentResponse> {
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     { role: "system", content: AGENT_SYSTEM_PROMPT },
     { role: "user", content: userQuery },
   ];
-  const rawText = await chatCompletion(messages as any[]);
+  const rawText = await chatCompletion(messages);
   try {
     const jsonMatch = rawText.match(/{[\s\S]*}/);
-    if (jsonMatch) return JSON.parse(jsonMatch[0]);
+    if (jsonMatch) return JSON.parse(jsonMatch[0]) as BifrostAgentResponse;
     return { type: "general_answer", message: rawText.trim() };
   } catch {
     return { type: "general_answer", message: rawText.trim() };
@@ -85,7 +95,9 @@ async function bifrostAgentInternal(userQuery: string): Promise<any> {
 /*                                Public API                                  */
 /* -------------------------------------------------------------------------- */
 
-export async function bifrostAgent(userQuery: string): Promise<any> {
+export async function bifrostAgent(
+  userQuery: string,
+): Promise<BifrostAgentResponse> {
   if (isServer) return bifrostAgentInternal(userQuery);
   const res = await fetch("/api/openai/agent", {
     method: "POST",
@@ -93,5 +105,5 @@ export async function bifrostAgent(userQuery: string): Promise<any> {
     body: JSON.stringify({ query: userQuery }),
   });
   if (!res.ok) throw new Error(`OpenAI agent error: ${res.status}`);
-  return res.json();
+  return (await res.json()) as BifrostAgentResponse;
 }

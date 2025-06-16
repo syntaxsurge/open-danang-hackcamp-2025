@@ -14,8 +14,6 @@ import {
   useWaitForCallsStatus,
   useCallsStatus,
 } from "wagmi";
-import { l2SlpxAbi } from "@/lib/abis";
-import { L2SLPX_CONTRACT_ADDRESS } from "@/lib/constants";
 import {
   Select,
   SelectContent,
@@ -35,7 +33,11 @@ import type { AnyFieldApi } from "@tanstack/react-form";
 import { Loader2, MessageSquare } from "lucide-react";
 import { useAiAgentContext } from "@/hooks/use-ai-agent-context";
 import { TransactionStatus } from "@/components/transaction-status";
-import { TOKEN_LIST } from "@/lib/constants";
+import {
+  TOKEN_LIST,
+  L2SLPX_CONTRACT_ADDRESS,
+} from "@/lib/constants";
+import { l2SlpxAbi } from "@/lib/abis";
 
 /* -------------------------------------------------------------------------- */
 /*                        Redeem component implementation                     */
@@ -45,9 +47,7 @@ const tokens: Token[] = TOKEN_LIST.filter(
   (token) => token.symbol == "ETH" || token.symbol == "DOT"
 );
 
-export default function RedeemComponent({
-  tokenBalances,
-}: RedeemProps) {
+export default function RedeemComponent({ tokenBalances }: RedeemProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { open: openAgent } = useAiAgentContext();
   const [open, setOpen] = useState(false);
@@ -60,36 +60,34 @@ export default function RedeemComponent({
     chainId: chainId,
   });
 
-  const { data: tokenAllowances, refetch: refetchTokenAllowances } = useReadContracts({
-    contracts: [
-      {
-        address: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
-          .address as Address,
-        abi: erc20Abi,
-        functionName: "allowance",
-        args: [address as Address, L2SLPX_CONTRACT_ADDRESS],
-      },
-      {
-        address: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
-          .address as Address,
-        abi: erc20Abi,
-        functionName: "allowance",
-        args: [address as Address, L2SLPX_CONTRACT_ADDRESS],
-      },
-    ],
-  });
+  const { data: tokenAllowances, refetch: refetchTokenAllowances } =
+    useReadContracts({
+      contracts: [
+        {
+          address: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
+            .address as Address,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [address as Address, L2SLPX_CONTRACT_ADDRESS],
+        },
+        {
+          address: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+            .address as Address,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [address as Address, L2SLPX_CONTRACT_ADDRESS],
+        },
+      ],
+    });
 
-  /* ---------------------------------------------------------------------- */
-  /*                       Contract interactions helpers                    */
-  /* ---------------------------------------------------------------------- */
-
+  // Redeeming
   const { data: hash, error, isPending, writeContract } = useWriteContract();
 
   const {
     data: batchCallsId,
     isPending: isBatching,
     error: batchError,
-    sendCalls,
+    sendCalls: sendCalls,
   } = useSendCalls();
 
   const form = useForm({
@@ -97,7 +95,129 @@ export default function RedeemComponent({
       amount: "",
     },
     onSubmit: async ({ value }) => {
-      // ... logic unchanged ...
+      // write to contract if ETH
+      if (selectedToken?.symbol === "ETH") {
+        if (availableCapabilities?.atomic?.status === "supported") {
+          sendCalls({
+            calls: [
+              {
+                to: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
+                  .address as Address,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [L2SLPX_CONTRACT_ADDRESS, parseEther(value.amount)],
+              },
+              {
+                to: L2SLPX_CONTRACT_ADDRESS,
+                abi: l2SlpxAbi,
+                functionName: "createOrder",
+                args: [
+                  TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
+                    .address as Address,
+                  parseEther(value.amount),
+                  1,
+                  "bifrost",
+                ],
+              },
+            ],
+          });
+        }
+
+        if (availableCapabilities?.atomic?.status !== "unsupported") {
+          if (
+            tokenAllowances?.[0]?.status === "success" &&
+            tokenAllowances?.[0]?.result === BigInt(0)
+          ) {
+            await writeContract({
+              address: TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
+                .address as Address,
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [L2SLPX_CONTRACT_ADDRESS, maxUint256],
+            });
+          }
+
+          if (
+            tokenAllowances?.[0]?.status === "success" &&
+            tokenAllowances?.[0]?.result >= parseEther(value.amount)
+          ) {
+            writeContract({
+              address: L2SLPX_CONTRACT_ADDRESS,
+              abi: l2SlpxAbi,
+              functionName: "createOrder",
+              args: [
+                TOKEN_LIST.filter((token) => token.symbol === "vETH")[0]
+                  .address as Address,
+                parseEther(value.amount),
+                1,
+                "bifrost",
+              ],
+            });
+          }
+        }
+      }
+
+      // write to contract if vDOT
+      if (selectedToken?.symbol === "DOT") {
+        if (availableCapabilities?.atomic?.status === "supported") {
+          sendCalls({
+            calls: [
+              {
+                to: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+                  .address as Address,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [L2SLPX_CONTRACT_ADDRESS, parseEther(value.amount)],
+              },
+              {
+                to: L2SLPX_CONTRACT_ADDRESS,
+                abi: l2SlpxAbi,
+                functionName: "createOrder",
+                args: [
+                  TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+                    .address as Address,
+                  parseEther(value.amount),
+                  1,
+                  "bifrost",
+                ],
+              },
+            ],
+          });
+        }
+
+        if (availableCapabilities?.atomic?.status !== "supported") {
+          if (
+            tokenAllowances?.[1]?.status === "success" &&
+            tokenAllowances?.[1]?.result === BigInt(0)
+          ) {
+            await writeContract({
+              address: TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+                .address as Address,
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [L2SLPX_CONTRACT_ADDRESS, maxUint256],
+            });
+          }
+
+          if (
+            tokenAllowances?.[1]?.status === "success" &&
+            tokenAllowances?.[1]?.result >= parseEther(value.amount)
+          ) {
+            await writeContract({
+              address: L2SLPX_CONTRACT_ADDRESS,
+              abi: l2SlpxAbi,
+              functionName: "createOrder",
+              args: [
+                TOKEN_LIST.filter((token) => token.symbol === "vDOT")[0]
+                  .address as Address,
+                parseEther(value.amount),
+                1,
+                "bifrost",
+              ],
+            });
+          }
+        }
+      }
     },
   });
 
@@ -114,11 +234,11 @@ export default function RedeemComponent({
   const { data: batchCallsStatus } = useCallsStatus(
     batchCallsId
       ? {
-          id: batchCallsId.id,
-        }
+        id: batchCallsId.id,
+      }
       : {
-          id: "",
-        }
+        id: "",
+      }
   );
 
   useEffect(() => {
@@ -186,13 +306,13 @@ export default function RedeemComponent({
                     !value
                       ? "Please enter an amount to redeem"
                       : parseEther(value) < 0
-                      ? "Amount must be greater than 0"
-                      : parseEther(value) >
-                        (selectedToken?.symbol === "ETH"
-                          ? tokenBalances?.[1] ?? BigInt(0)
-                          : tokenBalances?.[2] ?? BigInt(0))
-                      ? "Amount must be less than or equal to your balance"
-                      : undefined,
+                        ? "Amount must be greater than 0"
+                        : parseEther(value) >
+                          (selectedToken?.symbol === "ETH"
+                            ? tokenBalances?.[1] ?? BigInt(0)
+                            : tokenBalances?.[2] ?? BigInt(0))
+                          ? "Amount must be less than or equal to your balance"
+                          : undefined,
                 }}
               >
                 {(field) => (
@@ -207,8 +327,8 @@ export default function RedeemComponent({
                               (selectedToken?.symbol === "ETH"
                                 ? tokenBalances?.[1]
                                 : selectedToken?.symbol === "DOT"
-                                ? tokenBalances?.[2]
-                                : BigInt(0)) ?? BigInt(0)
+                                  ? tokenBalances?.[2]
+                                  : BigInt(0)) ?? BigInt(0)
                             )
                           )
                         }
@@ -291,21 +411,25 @@ export default function RedeemComponent({
               >
                 {isSubmitting || isPending || isBatching ? (
                   <>
-                    <Loader2 />
+                    <Loader2 className="animate-spin" />
                     Please confirm in wallet
                   </>
                 ) : isSendingCalls ? (
                   <>
-                    <Loader2 />
+                    <Loader2 className="animate-spin" />
                     Sending...
                   </>
-                ) : availableCapabilities?.atomic?.status !== "supported" && selectedToken?.symbol === "ETH" &&
-                  (tokenAllowances?.[0]?.status === "success" &&
-                    tokenAllowances?.[0]?.result === BigInt(0)) ? (
+                ) : availableCapabilities?.atomic?.status !==
+                  "supported" &&
+                  selectedToken?.symbol === "ETH" &&
+                  tokenAllowances?.[0]?.status === "success" &&
+                  tokenAllowances?.[0]?.result === BigInt(0) ? (
                   "Approve"
-                ) : availableCapabilities?.atomic?.status !== "supported" && selectedToken?.symbol === "DOT" &&
-                  (tokenAllowances?.[1]?.status === "success" &&
-                    tokenAllowances?.[1]?.result === BigInt(0)) ? (
+                ) : availableCapabilities?.atomic?.status !==
+                  "supported" &&
+                  selectedToken?.symbol === "DOT" &&
+                  tokenAllowances?.[1]?.status === "success" &&
+                  tokenAllowances?.[1]?.result === BigInt(0) ? (
                   "Approve"
                 ) : (
                   "Redeem"
@@ -337,12 +461,11 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
         <em>Please enter an amount to redeem</em>
       ) : field.state.meta.isTouched && !field.state.meta.isValid ? (
         <em
-          className={`${
-            field.state.meta.errors.join(",") ===
-            "Please enter an amount to redeem"
+          className={`${field.state.meta.errors.join(",") ===
+              "Please enter an amount to redeem"
               ? ""
               : "text-red-500"
-          }`}
+            }`}
         >
           {field.state.meta.errors.join(",")}
         </em>
